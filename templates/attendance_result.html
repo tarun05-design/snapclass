@@ -1,0 +1,261 @@
+{% extends "base.html" %}
+
+{% block title %}Attendance Results - SNAPCLASS{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
+    <!-- Results Header -->
+    <div class="bg-white shadow-2xl rounded-xl overflow-hidden mb-8 border border-gray-200">
+        <div class="gradient-bg px-6 lg:px-8 py-8 lg:py-12">
+            <h1 class="text-3xl lg:text-4xl font-bold text-white flex items-center mb-3">
+                <i class="fas fa-check-circle mr-3 lg:mr-4"></i>
+                Attendance Processed
+            </h1>
+            <p class="text-lg lg:text-xl text-gray-200">Class: {{ class_name }} | Date: {{ today_date }}</p>
+        </div>
+        
+        <div class="p-6 lg:p-8">
+            <!-- Statistics Cards -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 mb-8">
+                <!-- Present Card -->
+                <div class="bg-green-50 border-2 border-green-200 rounded-xl p-6 lg:p-8 text-center">
+                    <i class="fas fa-user-check text-green-500 text-4xl lg:text-5xl mb-4"></i>
+                    <h3 class="text-3xl lg:text-4xl font-bold text-green-700 mb-2">{{ present_count }}</h3>
+                    <p class="text-base lg:text-lg text-green-600 font-semibold">Present Today</p>
+                </div>
+                
+                <!-- Absent Card -->
+                <div class="bg-red-50 border-2 border-red-200 rounded-xl p-6 lg:p-8 text-center">
+                    <i class="fas fa-user-times text-red-500 text-4xl lg:text-5xl mb-4"></i>
+                    {% set absent_count = all_students|length - present_count %}
+                    <h3 class="text-3xl lg:text-4xl font-bold text-red-700 mb-2">{{ absent_count }}</h3>
+                    <p class="text-base lg:text-lg text-red-600 font-semibold">Absent Today</p>
+                </div>
+                
+                <!-- Total Card -->
+                <div class="bg-blue-50 border-2 border-blue-200 rounded-xl p-6 lg:p-8 text-center">
+                    <i class="fas fa-users text-blue-500 text-4xl lg:text-5xl mb-4"></i>
+                    <h3 class="text-3xl lg:text-4xl font-bold text-blue-700 mb-2">{{ all_students|length }}</h3>
+                    <p class="text-base lg:text-lg text-blue-600 font-semibold">Total Students</p>
+                </div>
+            </div>
+            
+            <!-- Actions -->
+            <div class="flex flex-col lg:flex-row gap-4 lg:gap-6 justify-center mb-8">
+                <a href="{{ url_for('download_csv') }}" 
+                   class="inline-flex items-center justify-center px-6 py-3 lg:px-8 lg:py-4 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition duration-300 text-base lg:text-lg">
+                    <i class="fas fa-download mr-2"></i>
+                    Download CSV
+                </a>
+                <a href="{{ url_for('download_pdf') }}" 
+                   class="inline-flex items-center justify-center px-6 py-3 lg:px-8 lg:py-4 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition duration-300 text-base lg:text-lg">
+                    <i class="fas fa-file-pdf mr-2"></i>
+                    Download PDF
+                </a>
+                <a href="{{ url_for('take_attendance') }}" 
+                   class="inline-flex items-center justify-center px-6 py-3 lg:px-8 lg:py-4 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition duration-300 text-base lg:text-lg">
+                    <i class="fas fa-camera mr-2"></i>
+                    Take Another
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Attendance Table -->
+    <div class="bg-white shadow-2xl rounded-xl overflow-hidden mb-8 border border-gray-200">
+        <div class="gradient-bg px-6 lg:px-8 py-6">
+            <h2 class="text-xl lg:text-2xl font-bold text-white">
+                <i class="fas fa-table mr-2"></i>
+                Complete Attendance Table
+            </h2>
+        </div>
+        
+        <div class="p-6 lg:p-8">
+            <!-- Reading Guide -->
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 lg:p-6 mb-6">
+                <h3 class="text-base lg:text-lg font-bold text-blue-800 mb-3">
+                    <i class="fas fa-info-circle mr-2"></i>
+                    Reading Guide:
+                </h3>
+                <div class="grid grid-cols-2 gap-6 text-sm lg:text-base text-blue-700">
+                    <div class="flex items-center">
+                        <span class="inline-flex items-center justify-center w-8 h-8 lg:w-10 lg:h-10 bg-green-100 text-green-800 font-bold rounded-full mr-3 text-sm lg:text-base">1</span>
+                        <span class="font-semibold">Present</span>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="inline-flex items-center justify-center w-8 h-8 lg:w-10 lg:h-10 bg-red-100 text-red-800 font-bold rounded-full mr-3 text-sm lg:text-base">0</span>
+                        <span class="font-semibold">Absent</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Mobile-Optimized Table -->
+            <div class="overflow-x-auto bg-white rounded-lg border border-gray-200 shadow-sm">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 lg:px-6 py-4 text-left text-sm font-bold text-gray-900 uppercase tracking-wider">
+                                Student Name
+                            </th>
+                            <!-- DYNAMIC DATE COLUMNS -->
+                            {% for date_col in attendance_dates %}
+                            <th class="px-3 lg:px-6 py-4 text-center text-sm font-bold text-gray-900 uppercase tracking-wider">
+                                <div class="flex flex-col">
+                                    <span class="text-blue-600 font-bold text-xs lg:text-sm">{{ date_col.display_date }}</span>
+                                    <span class="text-xs text-gray-500 lg:block">{{ date_col.day_name }}</span>
+                                </div>
+                            </th>
+                            {% endfor %}
+                            <th class="px-3 lg:px-6 py-4 text-center text-sm font-bold text-gray-900 uppercase tracking-wider">
+                                Total Present
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% if attendance_table %}
+                            {% for student_data in attendance_table %}
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-sm lg:text-base font-semibold text-gray-900">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-user mr-2 text-gray-400"></i>
+                                        <span>{{ student_data.name }}</span>
+                                    </div>
+                                </td>
+                                <!-- ATTENDANCE VALUES -->
+                                {% for date_col in attendance_dates %}
+                                <td class="px-3 lg:px-6 py-4 whitespace-nowrap text-center">
+                                    {% set attendance_val = student_data.dates[date_col.column_name] %}
+                                    {% if attendance_val == 1 %}
+                                        <span class="inline-flex items-center justify-center w-8 h-8 lg:w-10 lg:h-10 bg-green-100 text-green-800 font-bold text-sm lg:text-base rounded-full">1</span>
+                                    {% else %}
+                                        <span class="inline-flex items-center justify-center w-8 h-8 lg:w-10 lg:h-10 bg-red-100 text-red-800 font-bold text-sm lg:text-base rounded-full">0</span>
+                                    {% endif %}
+                                </td>
+                                {% endfor %}
+                                <!-- Total Present Days -->
+                                <td class="px-3 lg:px-6 py-4 whitespace-nowrap text-center">
+                                    {% set present_days = student_data.dates.values() | select('equalto', 1) | list | length %}
+                                    <span class="inline-flex items-center justify-center w-10 h-8 lg:w-12 lg:h-10 bg-blue-100 text-blue-800 font-bold text-sm lg:text-base rounded-full">{{ present_days }}</span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <!-- FIXED: Show current attendance data -->
+                            {% for student in all_students %}
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-sm lg:text-base font-semibold text-gray-900">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-user mr-2 text-gray-400"></i>
+                                        <span>{{ student }}</span>
+                                    </div>
+                                </td>
+                                <!-- Today's Attendance -->
+                                <td class="px-3 lg:px-6 py-4 whitespace-nowrap text-center">
+                                    {% if student in present_students %}
+                                        <span class="inline-flex items-center justify-center w-8 h-8 lg:w-10 lg:h-10 bg-green-100 text-green-800 font-bold text-sm lg:text-base rounded-full">1</span>
+                                    {% else %}
+                                        <span class="inline-flex items-center justify-center w-8 h-8 lg:w-10 lg:h-10 bg-red-100 text-red-800 font-bold text-sm lg:text-base rounded-full">0</span>
+                                    {% endif %}
+                                </td>
+                                <!-- Total Present (just today for now) -->
+                                <td class="px-3 lg:px-6 py-4 whitespace-nowrap text-center">
+                                    {% if student in present_students %}
+                                        <span class="inline-flex items-center justify-center w-10 h-8 lg:w-12 lg:h-10 bg-blue-100 text-blue-800 font-bold text-sm lg:text-base rounded-full">1</span>
+                                    {% else %}
+                                        <span class="inline-flex items-center justify-center w-10 h-8 lg:w-12 lg:h-10 bg-blue-100 text-blue-800 font-bold text-sm lg:text-base rounded-full">0</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Student Attendance Summary -->
+    {% if all_students %}
+    <div class="bg-white shadow-2xl rounded-xl overflow-hidden mb-8 border border-gray-200">
+        <div class="gradient-bg px-6 lg:px-8 py-6">
+            <h2 class="text-xl lg:text-2xl font-bold text-white">
+                <i class="fas fa-users mr-2"></i>
+                Student Attendance Summary
+            </h2>
+        </div>
+        
+        <div class="p-6 lg:p-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Present Students -->
+                {% if present_students %}
+                <div class="bg-green-50 border border-green-200 rounded-lg p-6">
+                    <h3 class="text-lg font-bold text-green-800 mb-4">
+                        <i class="fas fa-check-circle mr-2"></i>
+                        Present Students ({{ present_count }})
+                    </h3>
+                    <div class="space-y-2">
+                        {% for student in present_students %}
+                        <div class="flex items-center p-3 bg-white rounded-lg">
+                            <i class="fas fa-user text-green-600 mr-3"></i>
+                            <span class="font-semibold text-gray-900">{{ student }}</span>
+                            <span class="ml-auto text-green-600 font-bold">Present</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Absent Students -->
+                {% set absent_students = all_students | reject('in', present_students) | list %}
+                {% if absent_students %}
+                <div class="bg-red-50 border border-red-200 rounded-lg p-6">
+                    <h3 class="text-lg font-bold text-red-800 mb-4">
+                        <i class="fas fa-times-circle mr-2"></i>
+                        Absent Students ({{ absent_students|length }})
+                    </h3>
+                    <div class="space-y-2">
+                        {% for student in absent_students %}
+                        <div class="flex items-center p-3 bg-white rounded-lg">
+                            <i class="fas fa-user text-red-600 mr-3"></i>
+                            <span class="font-semibold text-gray-900">{{ student }}</span>
+                            <span class="ml-auto text-red-600 font-bold">Absent</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Processed Images -->
+    {% if processed_images %}
+    <div class="bg-white shadow-2xl rounded-xl overflow-hidden border border-gray-200">
+        <div class="gradient-bg px-6 lg:px-8 py-6">
+            <h2 class="text-xl lg:text-2xl font-bold text-white">
+                <i class="fas fa-images mr-2"></i>
+                Processed Images
+            </h2>
+        </div>
+        <div class="p-6 lg:p-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {% for image in processed_images %}
+                <div class="border border-gray-200 rounded-lg overflow-hidden">
+                    <img src="{{ url_for('static', filename=image.replace('static/', '')) }}" 
+                         alt="Processed Image" 
+                         class="w-full h-64 lg:h-80 object-cover">
+                    <div class="p-4 bg-gray-50">
+                        <p class="text-sm lg:text-base text-gray-600">
+                            <i class="fas fa-eye mr-2"></i>
+                            Faces detected and labeled with student names
+                        </p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

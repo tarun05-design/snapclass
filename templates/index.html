@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block title %}SNAPCLASS - AI Attendance System{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-2 sm:px-6 lg:px-8 py-4 sm:py-12">
+    <!-- Hero Section -->
+    <div class="gradient-bg rounded-lg p-6 sm:p-12 mb-8 text-white text-center">
+        <div class="mb-6">
+            <i class="fas fa-camera text-4xl sm:text-6xl mb-4"></i>
+            <h1 class="text-3xl sm:text-5xl font-bold mb-4">SNAPCLASS</h1>
+            <p class="text-lg sm:text-xl opacity-90">AI-Powered Attendance Management System</p>
+        </div>
+
+        <p class="text-sm sm:text-base mb-8 opacity-80 max-w-2xl mx-auto">
+            Take attendance instantly using AI face recognition technology. 
+            Upload group photos and let our smart system identify students automatically.
+        </p>
+
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="{{ url_for('create_class') }}" 
+               class="inline-flex items-center justify-center px-6 py-3 bg-white/20 text-white rounded-lg font-medium hover:bg-white/30 transition duration-200 text-sm sm:text-base">
+                <i class="fas fa-plus mr-2"></i>
+                Create Class
+            </a>
+            <a href="{{ url_for('take_attendance') }}" 
+               class="inline-flex items-center justify-center px-6 py-3 bg-white text-blue-600 rounded-lg font-medium hover:bg-gray-100 transition duration-200 text-sm sm:text-base">
+                <i class="fas fa-camera mr-2"></i>
+                Take Attendance
+            </a>
+        </div>
+    </div>
+
+    <!-- Features Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <!-- View Classes -->
+        <div class="bg-white rounded-lg card-shadow p-6">
+            <div class="text-center">
+                <i class="fas fa-list text-blue-500 text-3xl mb-4"></i>
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">View Classes</h3>
+                <p class="text-gray-600 text-sm mb-4">Manage your existing classes and view student rosters</p>
+                <a href="{{ url_for('view_classes') }}" 
+                   class="inline-flex items-center justify-center w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200 text-sm">
+                    <i class="fas fa-arrow-right mr-2"></i>
+                    View Classes
+                </a>
+            </div>
+        </div>
+
+        <!-- Create Class -->
+        <div class="bg-white rounded-lg card-shadow p-6">
+            <div class="text-center">
+                <i class="fas fa-plus text-green-500 text-3xl mb-4"></i>
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">Create Class</h3>
+                <p class="text-gray-600 text-sm mb-4">Upload student photos to create a new attendance class</p>
+                <a href="{{ url_for('create_class') }}" 
+                   class="inline-flex items-center justify-center w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition duration-200 text-sm">
+                    <i class="fas fa-arrow-right mr-2"></i>
+                    Create Class
+                </a>
+            </div>
+        </div>
+
+        <!-- Take Attendance -->
+        <div class="bg-white rounded-lg card-shadow p-6">
+            <div class="text-center">
+                <i class="fas fa-camera text-purple-500 text-3xl mb-4"></i>
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">Take Attendance</h3>
+                <p class="text-gray-600 text-sm mb-4">Upload group photos for instant AI attendance marking</p>
+                <a href="{{ url_for('take_attendance') }}" 
+                   class="inline-flex items-center justify-center w-full px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition duration-200 text-sm">
+                    <i class="fas fa-arrow-right mr-2"></i>
+                    Take Attendance
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- How It Works -->
+    <div class="bg-white rounded-lg card-shadow p-6 sm:p-8">
+        <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 text-center mb-8">How It Works</h2>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="text-center">
+                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span class="text-blue-600 font-bold text-lg">1</span>
+                </div>
+                <h3 class="font-semibold text-gray-900 mb-2">Create Class</h3>
+                <p class="text-gray-600 text-sm">Upload individual student photos to create your class database</p>
+            </div>
+
+            <div class="text-center">
+                <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span class="text-green-600 font-bold text-lg">2</span>
+                </div>
+                <h3 class="font-semibold text-gray-900 mb-2">Take Photo</h3>
+                <p class="text-gray-600 text-sm">Capture a group photo of students in your class</p>
+            </div>
+
+            <div class="text-center">
+                <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span class="text-purple-600 font-bold text-lg">3</span>
+                </div>
+                <h3 class="font-semibold text-gray-900 mb-2">AI Processing</h3>
+                <p class="text-gray-600 text-sm">Our AI identifies faces and matches them to student records</p>
+            </div>
+
+            <div class="text-center">
+                <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span class="text-red-600 font-bold text-lg">4</span>
+                </div>
+                <h3 class="font-semibold text-gray-900 mb-2">Get Results</h3>
+                <p class="text-gray-600 text-sm">View attendance results and download reports instantly</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

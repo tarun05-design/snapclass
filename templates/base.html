@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}SNAPCLASS{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com/3.3.0"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .card-shadow {
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        .mobile-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 50;
+        }
+        .mobile-content {
+            padding-top: 70px;
+        }
+        @media (max-width: 768px) {
+            .mobile-hidden { display: none !important; }
+            .mobile-full { width: 100vw !important; margin: 0 !important; }
+            .mobile-padding { padding: 0.5rem !important; }
+            .mobile-text { font-size: 0.9rem !important; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Mobile Navigation -->
+    <nav class="mobile-nav gradient-bg shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <a href="{{ url_for('home') }}" class="text-white text-xl font-bold">
+                        <i class="fas fa-camera mr-2"></i>
+                        SNAPCLASS
+                    </a>
+                </div>
+
+                <!-- Desktop Navigation -->
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="{{ url_for('home') }}" class="text-white hover:bg-white/20 px-3 py-2 rounded-md text-sm font-medium">
+                            <i class="fas fa-home mr-2"></i>Home
+                        </a>
+                        <a href="{{ url_for('view_classes') }}" class="text-white hover:bg-white/20 px-3 py-2 rounded-md text-sm font-medium">
+                            <i class="fas fa-list mr-2"></i>View Classes
+                        </a>
+                        <a href="{{ url_for('create_class') }}" class="text-white hover:bg-white/20 px-3 py-2 rounded-md text-sm font-medium">
+                            <i class="fas fa-plus mr-2"></i>Create Class
+                        </a>
+                        <a href="{{ url_for('take_attendance') }}" class="text-white hover:bg-white/20 px-3 py-2 rounded-md text-sm font-medium">
+                            <i class="fas fa-camera mr-2"></i>Take Attendance
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden">
+                    <button onclick="toggleMobileMenu()" class="text-white hover:bg-white/20 p-2 rounded-md">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu (Hidden by default) -->
+        <div id="mobileMenu" class="hidden md:hidden bg-white/10 backdrop-blur-sm">
+            <div class="px-2 pt-2 pb-3 space-y-1">
+                <a href="{{ url_for('home') }}" class="text-white hover:bg-white/20 block px-3 py-2 rounded-md text-base font-medium">
+                    <i class="fas fa-home mr-2"></i>Home
+                </a>
+                <a href="{{ url_for('view_classes') }}" class="text-white hover:bg-white/20 block px-3 py-2 rounded-md text-base font-medium">
+                    <i class="fas fa-list mr-2"></i>View Classes
+                </a>
+                <a href="{{ url_for('create_class') }}" class="text-white hover:bg-white/20 block px-3 py-2 rounded-md text-base font-medium">
+                    <i class="fas fa-plus mr-2"></i>Create Class
+                </a>
+                <a href="{{ url_for('take_attendance') }}" class="text-white hover:bg-white/20 block px-3 py-2 rounded-md text-base font-medium">
+                    <i class="fas fa-camera mr-2"></i>Take Attendance
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="mobile-content">
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+                    {% for message in messages %}
+                        <div class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded mb-4" role="alert">
+                            <span class="block sm:inline">{{ message }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <script>
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('hidden');
+        }
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const menu = document.getElementById('mobileMenu');
+            const button = event.target.closest('button');
+            if (!menu.contains(event.target) && !button) {
+                menu.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>

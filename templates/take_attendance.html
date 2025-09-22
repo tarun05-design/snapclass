@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+
+{% block title %}Take Attendance - SNAPCLASS{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-2 sm:px-6 lg:px-8 py-4 sm:py-12">
+    <div class="bg-white shadow-xl rounded-lg overflow-hidden">
+        <!-- Header -->
+        <div class="gradient-bg px-4 sm:px-6 py-6 sm:py-8">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                    <h1 class="text-2xl sm:text-3xl font-bold text-white flex items-center mb-2 sm:mb-0">
+                        <i class="fas fa-camera mr-2 sm:mr-3"></i>
+                        Take Attendance
+                    </h1>
+                    <p class="text-sm sm:text-base text-gray-200">Upload group photos to automatically mark attendance</p>
+                </div>
+                <a href="{{ url_for('view_classes') }}" 
+                   class="mt-4 sm:mt-0 inline-flex items-center px-4 py-2 bg-white/20 text-white rounded-lg hover:bg-white/30 transition duration-200 text-sm">
+                    <i class="fas fa-arrow-left mr-2"></i>
+                    Back
+                </a>
+            </div>
+        </div>
+
+        <div class="p-4 sm:p-8">
+            {% if classes %}
+                <!-- Instructions -->
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                    <h3 class="font-semibold text-blue-800 mb-2 text-sm sm:text-base">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        How to Take Attendance:
+                    </h3>
+                    <ul class="text-xs sm:text-sm text-blue-700 space-y-1">
+                        <li>• Select the class from the dropdown below</li>
+                        <li>• Take a clear group photo of students</li>
+                        <li>• Upload the photo and let AI identify faces</li>
+                        <li>• Review attendance results and download reports</li>
+                    </ul>
+                </div>
+
+                <!-- Take Attendance Form -->
+                <form method="POST" enctype="multipart/form-data" class="space-y-6">
+                    <!-- Class Selection -->
+                    <div>
+                        <label for="class_name" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-graduation-cap mr-2"></i>
+                            Select Class *
+                        </label>
+                        <select id="class_name" 
+                                name="class_name" 
+                                required
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base">
+                            <option value="">Choose a class...</option>
+                            {% for class in classes %}
+                                <option value="{{ class }}">{{ class }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Group Photo -->
+                    <div>
+                        <label for="files" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-camera mr-2"></i>
+                            Group Photo *
+                        </label>
+                        <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
+                            <input type="file" 
+                                   id="files" 
+                                   name="files" 
+                                   accept="image/*"
+                                   multiple
+                                   required
+                                   class="hidden"
+                                   onchange="previewGroupPhoto(this)">
+                            <label for="files" class="cursor-pointer">
+                                <div id="photo-placeholder">
+                                    <i class="fas fa-camera text-gray-400 text-4xl mb-4"></i>
+                                    <p class="text-gray-600 font-medium mb-2 text-sm sm:text-base">Click to upload group photo</p>
+                                    <p class="text-gray-500 text-xs sm:text-sm">PNG, JPG up to 10MB (Multiple photos allowed)</p>
+                                </div>
+                                <div id="photo-preview" class="hidden">
+                                    <div id="photo-list" class="space-y-2"></div>
+                                    <p class="text-gray-600 mt-2 text-sm">Click to add more photos</p>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Photo Tips -->
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                        <h4 class="font-semibold text-yellow-800 mb-2 text-sm sm:text-base">
+                            <i class="fas fa-lightbulb mr-2"></i>
+                            Photo Tips:
+                        </h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs sm:text-sm text-yellow-700">
+                            <div>• Include all students in frame</div>
+                            <div>• Ensure good lighting</div>
+                            <div>• Students facing camera</div>
+                            <div>• Avoid shadows on faces</div>
+                            <div>• High resolution image</div>
+                            <div>• Multiple angles if needed</div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <button type="submit" 
+                                class="flex-1 bg-green-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-green-700 transition duration-200 text-sm sm:text-base">
+                            <i class="fas fa-check mr-2"></i>
+                            Process Attendance
+                        </button>
+                        <a href="{{ url_for('view_classes') }}" 
+                           class="flex-1 bg-gray-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-gray-700 transition duration-200 text-center text-sm sm:text-base">
+                            <i class="fas fa-times mr-2"></i>
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+            {% else %}
+                <!-- No Classes State -->
+                <div class="text-center py-12">
+                    <i class="fas fa-graduation-cap text-6xl text-gray-400 mb-4"></i>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">No Classes Available</h3>
+                    <p class="text-gray-600 mb-6 text-sm sm:text-base">You need to create a class before taking attendance.</p>
+                    <a href="{{ url_for('create_class') }}" 
+                       class="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition duration-200">
+                        <i class="fas fa-plus mr-2"></i>
+                        Create Your First Class
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+function previewGroupPhoto(input) {
+    const placeholder = document.getElementById('photo-placeholder');
+    const preview = document.getElementById('photo-preview');
+    const photoList = document.getElementById('photo-list');
+
+    if (input.files && input.files.length > 0) {
+        photoList.innerHTML = '';
+
+        for (let i = 0; i < input.files.length; i++) {
+            const file = input.files[i];
+            const fileName = file.name;
+
+            const photoItem = document.createElement('div');
+            photoItem.className = 'flex items-center justify-between bg-gray-100 p-2 rounded text-sm';
+            photoItem.innerHTML = `
+                <div class="flex items-center">
+                    <i class="fas fa-image text-green-500 mr-2"></i>
+                    <span>${fileName}</span>
+                </div>
+                <span class="text-xs text-gray-500">${(file.size / 1024 / 1024).toFixed(2)} MB</span>
+            `;
+
+            photoList.appendChild(photoItem);
+        }
+
+        placeholder.classList.add('hidden');
+        preview.classList.remove('hidden');
+    }
+}
+
+// Pre-select class if passed via URL parameter
+window.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const classParam = urlParams.get('class');
+    if (classParam) {
+        const classSelect = document.getElementById('class_name');
+        classSelect.value = classParam;
+    }
+});
+</script>
+{% endblock %}

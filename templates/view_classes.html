@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block title %}View Classes - SNAPCLASS{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-4 sm:py-12">
+    <!-- Header -->
+    <div class="gradient-bg rounded-lg p-4 sm:p-8 mb-6 text-white">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <h1 class="text-2xl sm:text-3xl font-bold flex items-center mb-2 sm:mb-0">
+                    <i class="fas fa-graduation-cap mr-2 sm:mr-3"></i>
+                    My Classes
+                </h1>
+                <p class="text-sm sm:text-base opacity-90">View and manage your attendance classes</p>
+            </div>
+            <a href="{{ url_for('create_class') }}" 
+               class="mt-4 sm:mt-0 inline-flex items-center justify-center px-4 py-2 bg-white/20 text-white rounded-lg hover:bg-white/30 transition duration-200 text-sm sm:text-base">
+                <i class="fas fa-plus mr-2"></i>
+                <span class="hidden sm:inline">Create New Class</span>
+                <span class="sm:hidden">New Class</span>
+            </a>
+        </div>
+    </div>
+    
+    {% if classes %}
+        <!-- Classes Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            {% for class in classes %}
+            <div class="bg-white rounded-lg card-shadow overflow-hidden hover:shadow-lg transition-shadow">
+                <!-- Class Header -->
+                <div class="gradient-bg p-4 text-white">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-lg sm:text-xl font-bold">{{ class.name }}</h3>
+                            <p class="text-sm opacity-90">
+                                <i class="fas fa-users mr-1"></i>
+                                {{ class.student_count }} student{{ 's' if class.student_count != 1 else '' }}
+                            </p>
+                        </div>
+                        <i class="fas fa-graduation-cap text-2xl opacity-80"></i>
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="p-4 space-y-3">
+                    <a href="{{ url_for('take_attendance') }}?class={{ class.name }}" 
+                       class="w-full inline-flex items-center justify-center px-4 py-3 bg-green-500 text-white rounded-lg font-medium hover:bg-green-600 transition duration-200 text-sm">
+                        <i class="fas fa-camera mr-2"></i>
+                        Take Attendance
+                    </a>
+                    
+                    <button onclick="confirmDeleteClass('{{ class.name }}')"
+                            class="w-full inline-flex items-center justify-center px-4 py-3 bg-red-500 text-white rounded-lg font-medium hover:bg-red-600 transition duration-200 text-sm">
+                        <i class="fas fa-trash mr-2"></i>
+                        Delete Class
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <!-- Empty State -->
+        <div class="text-center py-12">
+            <i class="fas fa-graduation-cap text-6xl text-gray-400 mb-4"></i>
+            <h3 class="text-xl font-semibold text-gray-900 mb-2">No Classes Found</h3>
+            <p class="text-gray-600 mb-6">Create your first class to get started with attendance tracking.</p>
+            <a href="{{ url_for('create_class') }}" 
+               class="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition duration-200">
+                <i class="fas fa-plus mr-2"></i>
+                Create Your First Class
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Delete Class Confirmation Modal -->
+<div id="deleteClassModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-lg max-w-sm w-full p-6">
+            <div class="flex items-center justify-center w-12 h-12 mx-auto bg-red-100 rounded-full mb-4">
+                <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900 text-center mb-2">Delete Class</h3>
+            <p class="text-gray-600 text-center mb-6 text-sm" id="deleteClassMessage"></p>
+            
+            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
+                <p class="text-xs text-yellow-800">
+                    <i class="fas fa-warning mr-1"></i>
+                    This will delete all student data and attendance records permanently.
+                </p>
+            </div>
+            
+            <div class="flex gap-3">
+                <button onclick="closeDeleteClassModal()" 
+                        class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition duration-200 text-sm">
+                    Cancel
+                </button>
+                <form id="deleteClassForm" method="POST" class="flex-1">
+                    <button type="submit" 
+                            class="w-full px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition duration-200 text-sm">
+                        Delete
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function confirmDeleteClass(className) {
+    const modal = document.getElementById('deleteClassModal');
+    const message = document.getElementById('deleteClassMessage');
+    const form = document.getElementById('deleteClassForm');
+    
+    message.textContent = `Are you sure you want to delete class "${className}"?`;
+    form.action = `/delete_class/${encodeURIComponent(className)}`;
+    
+    modal.classList.remove('hidden');
+}
+
+function closeDeleteClassModal() {
+    document.getElementById('deleteClassModal').classList.add('hidden');
+}
+</script>
+{% endblock %}
