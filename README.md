@@ -49,7 +49,7 @@ snapclass/
 
 1. **Clone the repo**
    ```bash
-   git clone https://github.com/yourusername/snapclass.git
+   git clone https://github.com/tarun05-design/snapclass.git
    cd snapclass
    ```
 
